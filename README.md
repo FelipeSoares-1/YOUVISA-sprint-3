@@ -16,7 +16,7 @@ Nesta Sprint: planejamento e arquitetura inicial, sem código obrigatório. No p
 
 ## Conteúdo e Navegação
 
-- Enunciado oficial: `docs/desafio.md`
+- Enunciado oficial: `docs/DESAFIO.md`
 - Checklist de aderência: `docs/CHECKLIST_ADERENCIA.md`
 - Plano de desenvolvimento (MVP/MRP, backlog, RACI, cronograma): `docs/PLANO_DESENVOLVIMENTO.md`
 - Arquitetura (C4, componentes, sequências): `docs/ARQUITETURA.md`
@@ -41,6 +41,22 @@ Nesta Sprint: planejamento e arquitetura inicial, sem código obrigatório. No p
 - Estratégia de dados, segurança e integrações
 
 Repositório privado; adicionar colaborador tutor: `leoruiz197`.
+
+---
+
+## Resumo Rapido
+
+| Entregavel | Arquivo(s) | Status |
+|---|---|---|
+| Proposta tecnica | `README.md` | OK |
+| Enunciado centralizado | `docs/DESAFIO.md` | OK |
+| Arquitetura | `docs/ARQUITETURA.md`, `docs/diagrams/architecture.png` | OK |
+| Tecnologias | `docs/TECH_STACK.md` | OK |
+| NLP/Fluxos | `docs/NLP_CHATBOTS.md`, `docs/FLUXOS_CHATBOT.md` | OK |
+| Dados/Seguranca | `docs/DADOS_E_ANALISE.md`, `docs/SEGURANCA_PRIVACIDADE.md` | OK |
+| RPA/Integracoes | `docs/RPA_AUTOMACAO.md`, `docs/INTEGRACOES.md` | OK |
+| Planejamento | `docs/PLANO_DESENVOLVIMENTO.md` | OK |
+| Avaliacao simulada | `docs/AVALIACAO_SIMULADA.md` | OK |
 
 ---
 

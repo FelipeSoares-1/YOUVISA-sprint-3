@@ -40,9 +40,10 @@ Diferenciais opcionais:
 
 ## Pontos de Melhoria (para “nota 10”)
 
-1) Exportar PNG dos diagramas e anexar ao repositório (garante visualização estável no GitHub):
-   - `docs/diagrams/architecture.png` (a partir de `architecture.mmd`)
-   - Opcional: exportar PlantUML para PNG (`docs/uml/*.png`)
+1) Diagramas em PNG no repositório (garante visualização estável no GitHub):
+   - OK: `docs/diagrams/architecture.png` (gerado a partir de `architecture.mmd`)
+   - OK: `docs/uml/use-case.png`, `docs/uml/component.png`
+   - Opcional: `docs/uml/activity.puml` (gerar PNG localmente com PlantUML)
 2) Criar tag de entrega ao congelar o repositório: `v1.0-sprint1`.
 3) Incluir scripts de demonstração de conversa (feito em `docs/DEMO_SCRIPTS.md`).
 
@@ -58,4 +59,3 @@ Diferenciais opcionais:
 Nota final simulada: 10/10.
 
 Observação: a exportação de PNG dos diagramas é o único passo operacional pendente antes do freeze. As fontes já estão no repositório para geração local.
-
