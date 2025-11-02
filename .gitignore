@@ -1,0 +1,32 @@
+# OS/Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.env
+.env.*
+.venv/
+venv/
+
+# Node
+node_modules/
+npm-debug.log*
+pnpm-lock.yaml
+
+# Logs/Temp
+*.log
+tmp/
+.coverage
+
+# Diagrams (manter PNG gerado)
+docs/diagrams/*.svg
+
+# CI/CD
+.github/
+

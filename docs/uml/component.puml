@@ -1,0 +1,23 @@
+@startuml
+package Canais {
+  [Telegram]
+  [WhatsApp]
+  [Web]
+}
+
+[Gateway de Canais] --> [Orquestrador]
+[Telegram] --> [Gateway de Canais]
+[WhatsApp] --> [Gateway de Canais]
+[Web] --> [Gateway de Canais]
+
+[Orquestrador] --> [NLU]
+[Orquestrador] --> [FAQ/Conhecimento]
+[Orquestrador] --> [RPA]
+[Orquestrador] --> [OCR/Documentos]
+[Orquestrador] --> [Handoff Humano]
+[Orquestrador] --> [Observabilidade]
+
+[Orquestrador] --> [Postgres]
+[OCR/Documentos] --> [Object Storage]
+@enduml
+

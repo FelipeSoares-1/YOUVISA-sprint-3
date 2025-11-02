@@ -1,0 +1,19 @@
+@startuml
+start
+:Receber mensagem;
+:Normalizar payload;
+:Consultar contexto;
+if (Classificar intenção?) then (Iniciar)
+  :Coletar dados mínimos;
+  :Criar protocolo;
+elseif (Status?) then (Consultar)
+  :Solicitar identificador;
+  :Consultar e responder status;
+elseif (Falar com Humano?) then (Handoff)
+  :Criar ticket com histórico;
+  :Encaminhar para atendimento humano;
+else (Fallback)
+  :Sugerir opções + handoff;
+endif
+stop
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+left to right direction
+actor Cliente
+actor "Agente Humano" as Agente
+rectangle YOUVISA {
+  usecase "Iniciar Solicitação" as UC1
+  usecase "Consultar Status" as UC2
+  usecase "Enviar Documentos" as UC3
+  usecase "Falar com Humano" as UC4
+}
+Cliente --> UC1
+Cliente --> UC2
+Cliente --> UC3
+Cliente --> UC4
+Agente <-- UC4
+@enduml
+

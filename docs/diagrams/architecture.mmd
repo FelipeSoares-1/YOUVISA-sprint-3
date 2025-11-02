@@ -1,0 +1,23 @@
+flowchart LR
+  subgraph Canais
+    TG[Telegram]
+    WA[WhatsApp Cloud API]
+    WEB[Web]
+  end
+
+  TG --> GA[Gateway de Canais]
+  WA --> GA
+  WEB --> GA
+
+  GA --> ORC[Orquestrador FastAPI]
+  ORC --> NLU[Motor NLU]
+  ORC --> KB[FAQ/Conhecimento]
+  ORC --> CTX[Contexto/Sessoes]
+  ORC --> RPA[RPA Workers]
+  ORC --> DOC[OCR/Validacao]
+  ORC --> HUM[Handoff Humano]
+
+  CTX <--> DB[(Postgres)]
+  DOC --> OBJ[(Object Storage)]
+  ORC --> OBS[Observabilidade]
+
