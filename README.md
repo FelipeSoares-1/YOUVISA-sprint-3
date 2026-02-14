@@ -9,12 +9,13 @@
 # YOUVISA Sprint 3 - Plataforma de Acompanhamento Inteligente
 
 ## 👨‍🎓 Integrantes: 
-- <a href="https://www.linkedin.com/in/caiorcastro/">Caio Rodrigues Castro</a> 
-- <a href="https://www.linkedin.com/in/celeste-leite-dos-santos-66352a24b/">Celeste Leite dos Santos</a> 
+- <a href="https://www.linkedin.com/in/caiorcastro/">Caio Rodrigues Castro</a>
 - <a href="https://www.linkedin.com/in/digitalmanagerfelipesoares/">Felipe Soares Nascimento</a>
-- <a href="https://www.linkedin.com/in//">Wellington Nascimento de Brito</a>
+- <a href="https://www.linkedin.com/in/fernando-segregio/">Fernando Miranda Segregio</a>
+- <a href="https://www.linkedin.com/in/mralmeida">Mario Roberto Silva de Almeida</a>
+- Wellington Nascimento de Brito
 
-## �‍🏫 Professores:
+## 👩‍🏫 Professores:
 ### Tutor(a) 
 - <a href="https://www.linkedin.com/in/leonardoorabona/">Leonardo Ruiz Orabona</a>
 ### Coordenador(a)
