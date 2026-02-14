@@ -3,6 +3,28 @@ import axios from 'axios'
 import FileUpload from './FileUpload'
 import StatusTimeline from './StatusTimeline'
 
+// SVG Icons
+const BellIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+)
+
+const FileIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+    </svg>
+)
+
+const InboxIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+        <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+    </svg>
+)
+
 export default function Dashboard() {
     const [documents, setDocuments] = useState([])
     const [notifications, setNotifications] = useState([])
@@ -13,18 +35,14 @@ export default function Dashboard() {
         try {
             const res = await axios.get('http://localhost:8000/api/documents/')
             setDocuments(res.data)
-        } catch (err) {
-            console.error(err)
-        }
+        } catch (err) { /* silent */ }
     }
 
     const fetchNotifications = async () => {
         try {
             const res = await axios.get('http://localhost:8000/api/notifications/')
             setNotifications(res.data)
-        } catch (err) {
-            console.error(err)
-        }
+        } catch (err) { /* silent */ }
     }
 
     useEffect(() => {
@@ -57,73 +75,40 @@ export default function Dashboard() {
 
     return (
         <div className="dashboard">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            {/* Header */}
+            <div className="page-header">
                 <h1>Painel de Acompanhamento</h1>
                 <button
-                    className="notification-bell"
+                    className="notification-toggle"
                     onClick={() => setShowNotifications(!showNotifications)}
-                    style={{
-                        background: 'rgba(99, 102, 241, 0.2)',
-                        border: '1px solid rgba(99, 102, 241, 0.4)',
-                        color: 'white',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        position: 'relative',
-                        fontSize: '0.9em'
-                    }}
+                    aria-label="Abrir notificações"
                 >
-                    🔔 Notificações
+                    <BellIcon />
+                    Notificações
                     {notifications.length > 0 && (
-                        <span style={{
-                            position: 'absolute',
-                            top: '-6px',
-                            right: '-6px',
-                            background: '#ef4444',
-                            color: 'white',
-                            borderRadius: '50%',
-                            width: '20px',
-                            height: '20px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.7em',
-                            fontWeight: 'bold'
-                        }}>
-                            {notifications.length}
-                        </span>
+                        <span className="notification-badge">{notifications.length}</span>
                     )}
                 </button>
             </div>
 
             {/* Notifications Panel */}
             {showNotifications && (
-                <div className="card" style={{
-                    marginBottom: '1.5rem',
-                    border: '1px solid rgba(99, 102, 241, 0.3)',
-                    maxHeight: '300px',
-                    overflowY: 'auto'
-                }}>
-                    <h3 style={{ marginBottom: '1rem' }}>📧 Central de Notificações</h3>
+                <div className="card notification-panel" style={{ marginBottom: 'var(--space-lg)' }}>
+                    <h3>Central de Notificações</h3>
                     {notifications.length === 0 ? (
-                        <p style={{ color: '#94a3b8' }}>Nenhuma notificação ainda.</p>
+                        <div className="empty-state">
+                            <InboxIcon />
+                            <p>Nenhuma notificação ainda</p>
+                        </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '260px', overflowY: 'auto' }}>
                             {notifications.slice().reverse().map((notif, idx) => (
-                                <div key={idx} style={{
-                                    background: 'rgba(255,255,255,0.03)',
-                                    padding: '0.8rem 1rem',
-                                    borderRadius: '6px',
-                                    borderLeft: '3px solid var(--accent)',
-                                    fontSize: '0.85em'
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                                        <strong style={{ color: '#c4b5fd' }}>{notif.event_type}</strong>
-                                        <span style={{ color: '#64748b', fontSize: '0.8em' }}>
-                                            {new Date(notif.sent_at).toLocaleTimeString()}
-                                        </span>
+                                <div key={idx} className="notification-item">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                                        <span className="event-type">{notif.event_type}</span>
+                                        <span className="time">{new Date(notif.sent_at).toLocaleTimeString()}</span>
                                     </div>
-                                    <p style={{ margin: 0, color: '#cbd5e1' }}>{notif.message}</p>
+                                    <p className="message-text">{notif.message}</p>
                                 </div>
                             ))}
                         </div>
@@ -131,68 +116,78 @@ export default function Dashboard() {
                 </div>
             )}
 
+            {/* Upload */}
             <div className="card">
                 <h3>Novo Processo</h3>
                 <FileUpload onUploadSuccess={handleUploadSuccess} />
             </div>
 
+            {/* Processes */}
             <div className="card">
                 <h3>Seus Processos</h3>
                 {documents.length === 0 ? (
-                    <p style={{ color: '#94a3b8' }}>Nenhum processo iniciado.</p>
+                    <div className="empty-state">
+                        <InboxIcon />
+                        <p>Nenhum processo iniciado</p>
+                    </div>
                 ) : (
-                    <div className="processes-list">
+                    <div>
                         {documents.map(doc => (
-                            <div key={doc.id} className="process-item" style={{
-                                background: 'rgba(255,255,255,0.03)',
-                                padding: '1.5rem',
-                                borderRadius: '8px',
-                                marginBottom: '1rem',
-                                border: '1px solid rgba(255,255,255,0.05)'
-                            }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                    <strong>📄 {doc.filename}</strong>
-                                    <span style={{ color: '#94a3b8', fontSize: '0.8em' }}>
-                                        Atualizado: {new Date(doc.updated_at).toLocaleTimeString()}
+                            <div key={doc.id} className="process-card">
+                                <div className="process-header">
+                                    <div className="filename"><FileIcon /> {doc.filename}</div>
+                                    <span className="update-time">
+                                        {new Date(doc.updated_at).toLocaleTimeString()}
                                     </span>
                                 </div>
-                                <div style={{ fontSize: '0.75em', color: '#64748b', marginBottom: '0.8rem' }}>
-                                    ID: {doc.id}
-                                </div>
+                                <div className="doc-id">ID: {doc.id}</div>
 
                                 <StatusTimeline status={doc.status} history={doc.history} />
 
                                 {/* Admin Controls */}
-                                <div className="admin-controls" style={{
-                                    marginTop: '1rem',
-                                    borderTop: '1px solid rgba(255,255,255,0.1)',
-                                    paddingTop: '1rem',
-                                    display: 'flex',
-                                    gap: '0.5rem',
-                                    fontSize: '0.9em',
-                                    flexWrap: 'wrap'
-                                }}>
-                                    <span style={{ color: '#64748b' }}>[Admin] Ações:</span>
+                                <div className="admin-controls">
+                                    <span className="label">Admin</span>
+
                                     {doc.status === 'RECEBIDO' && (
-                                        <button disabled={loading} onClick={() => handleTransition(doc.id, 'START_ANALYSIS')}>
-                                            ▶ Iniciar Análise
+                                        <button className="btn-default" disabled={loading}
+                                            onClick={() => handleTransition(doc.id, 'START_ANALYSIS')}>
+                                            Iniciar Análise
                                         </button>
                                     )}
+
                                     {doc.status === 'EM_ANALISE' && (
                                         <>
-                                            <button disabled={loading} onClick={() => handleTransition(doc.id, 'APPROVE')} style={{ color: '#34d399' }}>✓ Aprovar</button>
-                                            <button disabled={loading} onClick={() => handleTransition(doc.id, 'REQUEST_DOCS')} style={{ color: '#facc15' }}>⚠ Solicitar Docs</button>
-                                            <button disabled={loading} onClick={() => handleTransition(doc.id, 'REJECT')} style={{ color: '#ef4444' }}>✕ Reprovar</button>
+                                            <button className="btn-success" disabled={loading}
+                                                onClick={() => handleTransition(doc.id, 'APPROVE')}>
+                                                Aprovar
+                                            </button>
+                                            <button className="btn-warning" disabled={loading}
+                                                onClick={() => handleTransition(doc.id, 'REQUEST_DOCS')}>
+                                                Solicitar Docs
+                                            </button>
+                                            <button className="btn-danger" disabled={loading}
+                                                onClick={() => handleTransition(doc.id, 'REJECT')}>
+                                                Reprovar
+                                            </button>
                                         </>
                                     )}
+
                                     {doc.status === 'PENDENTE_DOCS' && (
-                                        <button disabled={loading} onClick={() => handleTransition(doc.id, 'RETRY_UPLOAD')}>↻ Reenviar</button>
+                                        <button className="btn-default" disabled={loading}
+                                            onClick={() => handleTransition(doc.id, 'RETRY_UPLOAD')}>
+                                            Reenviar
+                                        </button>
                                     )}
+
                                     {doc.status === 'APROVADO' && (
-                                        <button disabled={loading} onClick={() => handleTransition(doc.id, 'FINALIZE')} style={{ color: '#818cf8' }}>🏁 Finalizar</button>
+                                        <button className="btn-accent" disabled={loading}
+                                            onClick={() => handleTransition(doc.id, 'FINALIZE')}>
+                                            Finalizar
+                                        </button>
                                     )}
+
                                     {(doc.status === 'REPROVADO' || doc.status === 'FINALIZADO') && (
-                                        <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Processo encerrado</span>
+                                        <span className="btn-ghost">Processo encerrado</span>
                                     )}
                                 </div>
                             </div>
@@ -200,20 +195,6 @@ export default function Dashboard() {
                     </div>
                 )}
             </div>
-
-            <style>{`
-        button {
-          background: rgba(255,255,255,0.1);
-          border: none;
-          color: white;
-          padding: 0.3rem 0.8rem;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-        button:hover { background: rgba(255,255,255,0.2); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-      `}</style>
         </div>
     )
 }

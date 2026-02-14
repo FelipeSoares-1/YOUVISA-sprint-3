@@ -1,11 +1,58 @@
 import React from 'react'
 
+// SVG Icons for each step
+const CheckIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
+const InboxIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+    <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+  </svg>
+)
+
+const SearchIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+)
+
+const AlertIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+    <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+)
+
+const ShieldCheckIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <polyline points="9 12 12 15 16 10" />
+  </svg>
+)
+
+const FlagIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+    <line x1="4" y1="22" x2="4" y2="15" />
+  </svg>
+)
+
+const XCircleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+  </svg>
+)
+
 const STEPS = [
-  { id: 'RECEBIDO', label: 'Recebido', icon: '📩' },
-  { id: 'EM_ANALISE', label: 'Em Análise', icon: '🔍' },
-  { id: 'PENDENTE_DOCS', label: 'Pendente', icon: '⚠️' },
-  { id: 'APROVADO', label: 'Aprovado', icon: '✅' },
-  { id: 'FINALIZADO', label: 'Finalizado', icon: '🏁' }
+  { id: 'RECEBIDO', label: 'Recebido', icon: <InboxIcon /> },
+  { id: 'EM_ANALISE', label: 'Em Análise', icon: <SearchIcon /> },
+  { id: 'PENDENTE_DOCS', label: 'Pendente', icon: <AlertIcon /> },
+  { id: 'APROVADO', label: 'Aprovado', icon: <ShieldCheckIcon /> },
+  { id: 'FINALIZADO', label: 'Finalizado', icon: <FlagIcon /> }
 ]
 
 export default function StatusTimeline({ status, history = [] }) {
@@ -17,142 +64,179 @@ export default function StatusTimeline({ status, history = [] }) {
   const currentIdx = getCurrentStepIndex()
 
   return (
-    <div className="status-timeline">
-      <div className="timeline-track">
+    <div style={{
+      margin: '0.75rem 0',
+      padding: '1.25rem',
+      background: 'rgba(0, 0, 0, 0.25)',
+      borderRadius: 'var(--radius-lg)',
+      border: '1px solid var(--border-subtle)'
+    }}>
+      {/* Steps Track */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        position: 'relative',
+        paddingBottom: '0.5rem'
+      }}>
+        {/* Connection Line */}
+        <div style={{
+          position: 'absolute',
+          top: '18px',
+          left: '24px',
+          right: '24px',
+          height: '2px',
+          background: 'var(--border-subtle)',
+          zIndex: 0
+        }} />
+        {/* Progress Line */}
+        <div style={{
+          position: 'absolute',
+          top: '18px',
+          left: '24px',
+          width: currentIdx >= 0 ? `${(currentIdx / (STEPS.length - 1)) * 100}%` : '0%',
+          maxWidth: 'calc(100% - 48px)',
+          height: '2px',
+          background: status === 'REPROVADO' ? 'var(--danger)' : 'var(--accent-gradient)',
+          zIndex: 1,
+          transition: 'width 0.5s ease'
+        }} />
+
         {STEPS.map((step, idx) => {
-          let className = 'step'
-          if (idx < currentIdx) className += ' completed'
-          if (idx === currentIdx) className += ' current'
-          if (status === 'REPROVADO' && idx === 1) className += ' rejected'
+          const isCompleted = idx < currentIdx
+          const isCurrent = idx === currentIdx
+          const isRejected = status === 'REPROVADO' && idx === 1
+
+          let circleStyle = {
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px solid var(--border-subtle)',
+            background: 'var(--bg-secondary)',
+            transition: 'all 0.3s ease',
+            position: 'relative',
+            zIndex: 2,
+            color: 'var(--text-muted)'
+          }
+
+          if (isCompleted) {
+            circleStyle = {
+              ...circleStyle,
+              background: 'var(--accent)',
+              borderColor: 'var(--accent)',
+              color: 'white',
+              boxShadow: '0 0 12px var(--accent-glow)'
+            }
+          }
+
+          if (isCurrent && !isRejected) {
+            circleStyle = {
+              ...circleStyle,
+              borderColor: 'var(--accent)',
+              color: 'var(--accent-light)',
+              boxShadow: '0 0 16px var(--accent-glow)',
+              animation: 'pulse 2s infinite'
+            }
+          }
+
+          if (isRejected) {
+            circleStyle = {
+              ...circleStyle,
+              borderColor: 'var(--danger)',
+              color: 'var(--danger)',
+              boxShadow: '0 0 12px rgba(239, 68, 68, 0.3)'
+            }
+          }
 
           return (
-            <div key={step.id} className={className}>
-              <div className="circle">
-                {idx < currentIdx ? '✓' : step.icon}
+            <div key={step.id} style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.4rem',
+              opacity: (idx <= currentIdx || isCurrent) ? 1 : 0.35,
+              transition: 'opacity 0.3s'
+            }}>
+              <div style={circleStyle}>
+                {isCompleted ? <CheckIcon /> : isRejected ? <XCircleIcon /> : step.icon}
               </div>
-              <div className="label">{step.label}</div>
+              <span style={{
+                fontSize: '0.7rem',
+                color: isCurrent ? 'var(--text-primary)' : 'var(--text-muted)',
+                fontWeight: isCurrent ? 600 : 400,
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.01em'
+              }}>
+                {step.label}
+              </span>
             </div>
           )
         })}
       </div>
 
+      {/* Rejected banner */}
       {status === 'REPROVADO' && (
-        <div className="rejected-msg">
-          ❌ Documentação Reprovada. Consulte o suporte.
+        <div style={{
+          textAlign: 'center',
+          color: 'var(--danger)',
+          marginTop: '0.75rem',
+          fontWeight: 600,
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.4rem'
+        }}>
+          <XCircleIcon /> Documentação Reprovada — Contate o Suporte
         </div>
       )}
 
       {/* History Log */}
-      {history.length > 0 && (
-        <div className="history-log">
-          <div style={{ fontSize: '0.75em', color: '#64748b', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            📋 Histórico de Transições:
+      {history.length > 1 && (
+        <div style={{
+          marginTop: '0.75rem',
+          paddingTop: '0.75rem',
+          borderTop: '1px solid var(--border-subtle)'
+        }}>
+          <div style={{
+            fontSize: '0.7rem',
+            color: 'var(--text-muted)',
+            marginBottom: '0.4rem',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em',
+            fontFamily: 'var(--font-display)'
+          }}>
+            Histórico
           </div>
           {history.map((entry, idx) => (
             <div key={idx} style={{
-              fontSize: '0.75em',
-              color: '#94a3b8',
-              padding: '0.2rem 0',
-              borderBottom: idx < history.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none'
+              fontSize: '0.73rem',
+              color: 'var(--text-secondary)',
+              padding: '0.15rem 0',
+              display: 'flex',
+              gap: '0.5rem'
             }}>
-              <span style={{ color: '#818cf8' }}>
+              <span style={{ color: 'var(--accent-light)', fontFamily: 'monospace', fontSize: '0.68rem' }}>
                 {new Date(entry.timestamp).toLocaleTimeString()}
               </span>
-              {' → '}
-              <span style={{ color: '#c4b5fd' }}>{entry.to_status}</span>
-              {entry.description && ` — ${entry.description}`}
+              <span style={{ color: 'var(--text-accent)' }}>{entry.to_status}</span>
+              {entry.description && (
+                <span style={{ color: 'var(--text-muted)' }}>— {entry.description}</span>
+              )}
             </div>
           ))}
         </div>
       )}
 
       <style>{`
-        .status-timeline {
-          margin: 1rem 0;
-          padding: 1rem;
-          background: rgba(0,0,0,0.2);
-          border-radius: 12px;
-        }
-        .timeline-track {
-          display: flex;
-          justify-content: space-between;
-          position: relative;
-        }
-        .timeline-track::before {
-          content: '';
-          position: absolute;
-          top: 18px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: rgba(255,255,255,0.1);
-          z-index: 0;
-        }
-        .step {
-          position: relative;
-          z-index: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.5rem;
-          opacity: 0.4;
-          transition: opacity 0.3s;
-        }
-        .step.completed, .step.current {
-          opacity: 1;
-        }
-        .step .circle {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: var(--bg-card);
-          border: 2px solid rgba(255,255,255,0.2);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.9em;
-          transition: all 0.3s;
-        }
-        .step.completed .circle {
-          background: var(--accent);
-          border-color: var(--accent);
-          color: white;
-        }
-        .step.current .circle {
-          border-color: var(--accent);
-          box-shadow: 0 0 12px var(--accent-glow);
-          color: var(--accent);
-          animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-          0%, 100% { box-shadow: 0 0 8px var(--accent-glow); }
-          50% { box-shadow: 0 0 20px var(--accent-glow); }
-        }
-        .step.rejected .circle {
-          border-color: #ef4444;
-          color: #ef4444;
-          box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-        }
-        .step .label {
-          font-size: 0.75em;
-          color: #94a3b8;
-        }
-        .step.current .label {
-          color: white;
-          font-weight: bold;
-        }
-        .rejected-msg {
-          text-align: center;
-          color: #ef4444;
-          margin-top: 1rem;
-          font-weight: bold;
-        }
-        .history-log {
-          margin-top: 1rem;
-          padding-top: 0.8rem;
-          border-top: 1px solid rgba(255,255,255,0.05);
-        }
-      `}</style>
+                @keyframes pulse {
+                    0%, 100% { box-shadow: 0 0 8px var(--accent-glow); }
+                    50% { box-shadow: 0 0 24px var(--accent-glow); }
+                }
+            `}</style>
     </div>
   )
 }
