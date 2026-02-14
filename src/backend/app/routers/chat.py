@@ -11,14 +11,23 @@ class ChatRequest(BaseModel):
 @router.post("/")
 async def chat_interaction(request: ChatRequest):
     try:
-        # 1. Identify Intent (NLP)
-        intent_response = ai_service.analyze_document(request.message) 
-        # Using same method for now, but in real app would have specific 'detect_intent'
+        # 1. Identify Intent (Simple Keyword for Prototype)
+        message_lower = request.message.lower()
         
-        # 2. Respond
-        if "simulado" in str(intent_response).lower():
-            return {"response": "Entendi. Parece que você quer enviar um documento. Por favor, faça o upload na área ao lado."}
+        if "status" in message_lower or "como está" in message_lower or "andamento" in message_lower:
+            # Mock: In a real app, we'd identify the user's active process.
+            # Here we just take the last created process or a mock one.
+            from app.services.workflow_service import workflow_service
+            processes = list(workflow_service._db.values())
             
-        return {"response": f"Recebi sua mensagem: '{request.message}'. Como posso ajudar com seu visto hoje?"}
+            if not processes:
+                return {"response": "Você ainda não enviou nenhum documento. Faça o upload para começar."}
+                
+            last_process = processes[-1]
+            explanation = ai_service.explain_status(last_process["status"], last_process["history"])
+            return {"response": explanation}
+            
+        # 2. General AI Chat
+        return {"response": f"Recebi: '{request.message}'. (Para ver o status, pergunte 'Qual o status?')."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

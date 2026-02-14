@@ -1,11 +1,17 @@
-# YOUVISA — Plataforma Inteligente de Atendimento Multicanal (Sprint 2)
+# YOUVISA — Plataforma Inteligente de Atendimento Multicanal (Sprint 3)
 
 ## 👨‍🎓 Integrantes (Grupo 21)
-- Fernando Miranda Segregio
+- <a href="https://www.linkedin.com/in/caiorcastro/">Caio Rodrigues Castro</a>
+- <a href="https://www.linkedin.com/in/digitalmanagerfelipesoares/">Felipe Soares Nascimento</a>
+- <a href="https://www.linkedin.com/in/fernando-segregio/">Fernando Miranda Segregio</a>
+- <a href="https://www.linkedin.com/in/mralmeida">Mario Roberto Silva de Almeida</a>
 - Wellington Nascimento de Brito
-- Mário Roberto Silva de Almeida
-- Caio Rodrigues Castro
-- Felipe Soares Nascimento
+
+## 👨‍🏫 Professores
+### Tutor(a)
+- <a href="https://www.linkedin.com/in/leonardoorabona/">Leonardo Ruiz Orabona</a>
+### Coordenador(a)
+- <a href="https://www.linkedin.com/in/profandregodoi/">Andre Godoi</a>
 
 ## 📜 Descrição
 Este projeto é a implementação da **Sprint 2** do Enterprise Challenge YOUVISA. Trata-se de uma plataforma que integra Chatbot, Visão Computacional e Inteligência Artificial para automação de atendimento consular.
@@ -40,7 +46,13 @@ npm run dev
 ```
 O frontend rodará em `http://localhost:5173`.
 
-## 🤖 Funcionalidades (IA e Automação)
+## 🚀 Funcionalidades (Sprint 3 - Acompanhamento)
+- **Máquina de Estados**: Controle rigoroso do fluxo (`Recebido` -> `Análise` -> `Aprovado`).
+- **Timeline Visual**: Interface gráfica para acompanhar o progresso.
+- **Notificações**: Alertas automáticos a cada mudança de estado.
+- **IA Explicativa**: O Chatbot explica o status atual em linguagem simples.
+
+## 🤖 Funcionalidades (Sprint 2 - Automação)
 - **Chat Inteligente**: Responde dúvidas sobre vistos usando NLP.
 - **Validação de Documentos**: OpenCV verifica se o upload é uma imagem válida.
 - **Classificação**: IA Generativa (Mock ou OpenAI Real) extrai dados do documento.
