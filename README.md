@@ -1,62 +1,73 @@
-# YOUVISA — Plataforma Inteligente de Atendimento Multicanal (Sprint 3)
+# FIAP - Faculdade de Informática e Administração Paulista
 
-## 👨‍🎓 Integrantes (Grupo 21)
-- <a href="https://www.linkedin.com/in/caiorcastro/">Caio Rodrigues Castro</a>
+<p align="center">
+<a href= "https://www.fiap.com.br/"><img src="assets/logo-fiap.png" alt="FIAP - Faculdade de Informática e Admistração Paulista" border="0" width=40% height=40%></a>
+</p>
+
+<br>
+
+# YOUVISA Sprint 3 - Plataforma de Acompanhamento Inteligente
+
+## 👨‍🎓 Integrantes: 
+- <a href="https://www.linkedin.com/in/caiorcastro/">Caio Rodrigues Castro</a> 
+- <a href="https://www.linkedin.com/in/celeste-leite-dos-santos-66352a24b/">Celeste Leite dos Santos</a> 
 - <a href="https://www.linkedin.com/in/digitalmanagerfelipesoares/">Felipe Soares Nascimento</a>
-- <a href="https://www.linkedin.com/in/fernando-segregio/">Fernando Miranda Segregio</a>
-- <a href="https://www.linkedin.com/in/mralmeida">Mario Roberto Silva de Almeida</a>
-- Wellington Nascimento de Brito
+- <a href="https://www.linkedin.com/in//">Wellington Nascimento de Brito</a>
 
-## 👨‍🏫 Professores
-### Tutor(a)
+## �‍🏫 Professores:
+### Tutor(a) 
 - <a href="https://www.linkedin.com/in/leonardoorabona/">Leonardo Ruiz Orabona</a>
 ### Coordenador(a)
-- <a href="https://www.linkedin.com/in/profandregodoi/">Andre Godoi</a>
+- <a href="https://www.linkedin.com/in/profandregodoi/">André Godoi Chiovato</a>
 
-## 📜 Descrição
-Este projeto é a implementação da **Sprint 2** do Enterprise Challenge YOUVISA. Trata-se de uma plataforma que integra Chatbot, Visão Computacional e Inteligência Artificial para automação de atendimento consular.
+---
 
-O sistema recebe documentos (Passaportes, Vistos), valida sua integridade visualmente, classifica o conteúdo com IA Generativa e dispara automações de e-mail simuladas.
+## 📜 Descrição do Projeto (Sprint 3)
 
-## 📁 Estrutura de Pastas (Padrão FIAP)
-- **src/backend**: API em Python (FastAPI) contendo lógica de IA, Vision e Automação.
-- **src/frontend**: Interface Web em React + Vite.
-- **document**: Documentação técnica e arquitetura.
-- **assets**: Imagens e recursos.
+O **YOUVISA** evoluiu nesta Sprint 3 para se tornar uma plataforma inteligente de **Acompanhamento de Processos Consulares**. Além de validar documentos com Visão Computacional (Sprint 2), o sistema agora gerencia o ciclo de vida do pedido (Workflow), notifica o usuário a cada etapa e utiliza IA Generativa para explicar o status técnico em linguagem natural.
+
+## 🚀 Funcionalidades Principais
+
+### 1. Máquina de Estados (Workflow)
+O sistema implementa uma máquina de estados finitos robusta para garantir a integridade do processo:
+- **RECEBIDO**: Documento enviado pelo usuário.
+- **EM ANÁLISE**: Equipe técnica inicia a validação.
+- **PENDENTE**: Falta de documentos ou informações.
+- **APROVADO / REPROVADO**: Decisão final.
+
+### 2. Timeline Visual
+Um componente de frontend (`StatusTimeline`) permite ao usuário visualizar exatamente onde seu processo está na esteira de aprovação.
+
+### 3. Atendimento Inteligente (IA Contextual)
+O Chatbot agora é "consciente do contexto". Se o usuário pergunta *"Como está meu pedido?"*, a IA consulta o estado atual no Workflow e responde de forma personalizada (ex: *"Seu pedido está em análise técnica, aguarde a validação..."*), respeitando **Guardrails** de segurança para não prometer prazos falsos.
+
+### 4. Notificações Ativas
+O sistema dispara eventos (simulados via log/console) sempre que um status muda, mantendo o usuário informado sem necessidade de refresh constante.
+
+## 📁 Estrutura do Projeto
+- `src/backend`: API FastAPI com serviços de Workflow, AI e Notificação.
+- `src/frontend`: Aplicação React com Dashboard de Acompanhamento.
+- `document`: Documentação técnica detalhada, diagramas e relatórios.
 
 ## 🔧 Como Executar
 
-### Pré-requisitos
-- Python 3.12+
-- Node.js 18+
-
-### Passo 1: Backend
+### Backend
 ```bash
 cd src/backend
-pip install -r requirements.txt  # ou pip install fastapi uvicorn openai opencv-python-headless python-dotenv
-python -m uvicorn app.main:app --reload
+# Instalar dependências
+pip install -r requirements.txt
+# Rodar servidor
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
-O backend rodará em `http://localhost:8000`.
 
-### Passo 2: Frontend
+### Frontend
 ```bash
 cd src/frontend
+# Instalar dependências
 npm install
+# Rodar aplicação
 npm run dev
 ```
-O frontend rodará em `http://localhost:5173`.
-
-## 🚀 Funcionalidades (Sprint 3 - Acompanhamento)
-- **Máquina de Estados**: Controle rigoroso do fluxo (`Recebido` -> `Análise` -> `Aprovado`).
-- **Timeline Visual**: Interface gráfica para acompanhar o progresso.
-- **Notificações**: Alertas automáticos a cada mudança de estado.
-- **IA Explicativa**: O Chatbot explica o status atual em linguagem simples.
-
-## 🤖 Funcionalidades (Sprint 2 - Automação)
-- **Chat Inteligente**: Responde dúvidas sobre vistos usando NLP.
-- **Validação de Documentos**: OpenCV verifica se o upload é uma imagem válida.
-- **Classificação**: IA Generativa (Mock ou OpenAI Real) extrai dados do documento.
-- **Automação**: Disparo simulado de e-mails de confirmação.
 
 ## 📝 Licença
-MIT
+[Attribution 4.0 International](http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1)
