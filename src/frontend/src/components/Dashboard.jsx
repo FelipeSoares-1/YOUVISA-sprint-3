@@ -5,7 +5,9 @@ import StatusTimeline from './StatusTimeline'
 
 export default function Dashboard() {
     const [documents, setDocuments] = useState([])
+    const [notifications, setNotifications] = useState([])
     const [loading, setLoading] = useState(false)
+    const [showNotifications, setShowNotifications] = useState(false)
 
     const fetchDocuments = async () => {
         try {
@@ -16,15 +18,28 @@ export default function Dashboard() {
         }
     }
 
+    const fetchNotifications = async () => {
+        try {
+            const res = await axios.get('http://localhost:8000/api/notifications/')
+            setNotifications(res.data)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
     useEffect(() => {
         fetchDocuments()
-        const interval = setInterval(fetchDocuments, 2000) // Poll for updates
+        fetchNotifications()
+        const interval = setInterval(() => {
+            fetchDocuments()
+            fetchNotifications()
+        }, 3000)
         return () => clearInterval(interval)
     }, [])
 
-    const handleUploadSuccess = (newDoc) => {
-        // Immediate feedback
+    const handleUploadSuccess = () => {
         fetchDocuments()
+        fetchNotifications()
     }
 
     const handleTransition = async (docId, event) => {
@@ -32,8 +47,9 @@ export default function Dashboard() {
         try {
             await axios.post(`http://localhost:8000/api/documents/${docId}/transition?event=${event}`)
             fetchDocuments()
+            fetchNotifications()
         } catch (err) {
-            alert("Erro na transição: " + err.response?.data?.detail)
+            alert("Erro na transição: " + (err.response?.data?.detail || err.message))
         } finally {
             setLoading(false)
         }
@@ -41,7 +57,79 @@ export default function Dashboard() {
 
     return (
         <div className="dashboard">
-            <h1 style={{ marginBottom: '2rem' }}>Painel de Acompanhamento</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h1>Painel de Acompanhamento</h1>
+                <button
+                    className="notification-bell"
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    style={{
+                        background: 'rgba(99, 102, 241, 0.2)',
+                        border: '1px solid rgba(99, 102, 241, 0.4)',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        fontSize: '0.9em'
+                    }}
+                >
+                    🔔 Notificações
+                    {notifications.length > 0 && (
+                        <span style={{
+                            position: 'absolute',
+                            top: '-6px',
+                            right: '-6px',
+                            background: '#ef4444',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: '20px',
+                            height: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.7em',
+                            fontWeight: 'bold'
+                        }}>
+                            {notifications.length}
+                        </span>
+                    )}
+                </button>
+            </div>
+
+            {/* Notifications Panel */}
+            {showNotifications && (
+                <div className="card" style={{
+                    marginBottom: '1.5rem',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    maxHeight: '300px',
+                    overflowY: 'auto'
+                }}>
+                    <h3 style={{ marginBottom: '1rem' }}>📧 Central de Notificações</h3>
+                    {notifications.length === 0 ? (
+                        <p style={{ color: '#94a3b8' }}>Nenhuma notificação ainda.</p>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            {notifications.slice().reverse().map((notif, idx) => (
+                                <div key={idx} style={{
+                                    background: 'rgba(255,255,255,0.03)',
+                                    padding: '0.8rem 1rem',
+                                    borderRadius: '6px',
+                                    borderLeft: '3px solid var(--accent)',
+                                    fontSize: '0.85em'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                                        <strong style={{ color: '#c4b5fd' }}>{notif.event_type}</strong>
+                                        <span style={{ color: '#64748b', fontSize: '0.8em' }}>
+                                            {new Date(notif.sent_at).toLocaleTimeString()}
+                                        </span>
+                                    </div>
+                                    <p style={{ margin: 0, color: '#cbd5e1' }}>{notif.message}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div className="card">
                 <h3>Novo Processo</h3>
@@ -55,46 +143,56 @@ export default function Dashboard() {
                 ) : (
                     <div className="processes-list">
                         {documents.map(doc => (
-                            <div key={doc.filename} className="process-item" style={{
+                            <div key={doc.id} className="process-item" style={{
                                 background: 'rgba(255,255,255,0.03)',
                                 padding: '1.5rem',
                                 borderRadius: '8px',
                                 marginBottom: '1rem',
                                 border: '1px solid rgba(255,255,255,0.05)'
                             }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                                    <strong>{doc.filename}</strong>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                    <strong>📄 {doc.filename}</strong>
                                     <span style={{ color: '#94a3b8', fontSize: '0.8em' }}>
                                         Atualizado: {new Date(doc.updated_at).toLocaleTimeString()}
                                     </span>
                                 </div>
+                                <div style={{ fontSize: '0.75em', color: '#64748b', marginBottom: '0.8rem' }}>
+                                    ID: {doc.id}
+                                </div>
 
-                                <StatusTimeline status={doc.status} />
+                                <StatusTimeline status={doc.status} history={doc.history} />
 
-                                {/* ADMIN CONTROLS (Demo Only) */}
+                                {/* Admin Controls */}
                                 <div className="admin-controls" style={{
                                     marginTop: '1rem',
                                     borderTop: '1px solid rgba(255,255,255,0.1)',
                                     paddingTop: '1rem',
                                     display: 'flex',
                                     gap: '0.5rem',
-                                    fontSize: '0.9em'
+                                    fontSize: '0.9em',
+                                    flexWrap: 'wrap'
                                 }}>
-                                    <span style={{ color: '#64748b' }}>[Admin Demo] Ações:</span>
+                                    <span style={{ color: '#64748b' }}>[Admin] Ações:</span>
                                     {doc.status === 'RECEBIDO' && (
-                                        <button onClick={() => handleTransition(doc.id || Object.keys(documents).find(key => documents[key] === doc), 'START_ANALYSIS')}>
+                                        <button disabled={loading} onClick={() => handleTransition(doc.id, 'START_ANALYSIS')}>
                                             ▶ Iniciar Análise
                                         </button>
                                     )}
                                     {doc.status === 'EM_ANALISE' && (
                                         <>
-                                            <button onClick={() => handleTransition(doc.id || "manual_fix", 'APPROVE')} style={{ color: '#34d399' }}>✓ Aprovar</button>
-                                            <button onClick={() => handleTransition(doc.id || "manual_fix", 'REQUEST_DOCS')} style={{ color: '#facc15' }}>⚠ Solicitar Docs</button>
-                                            <button onClick={() => handleTransition(doc.id || "manual_fix", 'REJECT')} style={{ color: '#ef4444' }}>✕ Reprovar</button>
+                                            <button disabled={loading} onClick={() => handleTransition(doc.id, 'APPROVE')} style={{ color: '#34d399' }}>✓ Aprovar</button>
+                                            <button disabled={loading} onClick={() => handleTransition(doc.id, 'REQUEST_DOCS')} style={{ color: '#facc15' }}>⚠ Solicitar Docs</button>
+                                            <button disabled={loading} onClick={() => handleTransition(doc.id, 'REJECT')} style={{ color: '#ef4444' }}>✕ Reprovar</button>
                                         </>
                                     )}
                                     {doc.status === 'PENDENTE_DOCS' && (
-                                        <button onClick={() => handleTransition(doc.id || "manual_fix", 'RETRY_UPLOAD')}>↻ Reenviar</button>
+                                        <button disabled={loading} onClick={() => handleTransition(doc.id, 'RETRY_UPLOAD')}>↻ Reenviar</button>
+                                    )}
+                                    {doc.status === 'APROVADO' && (
+                                        <button disabled={loading} onClick={() => handleTransition(doc.id, 'FINALIZE')} style={{ color: '#818cf8' }}>🏁 Finalizar</button>
+                                    )}
+                                    {(doc.status === 'REPROVADO' || doc.status === 'FINALIZADO') && (
+                                        <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Processo encerrado</span>
                                     )}
                                 </div>
                             </div>
@@ -111,8 +209,10 @@ export default function Dashboard() {
           padding: 0.3rem 0.8rem;
           border-radius: 4px;
           cursor: pointer;
+          transition: background 0.2s;
         }
         button:hover { background: rgba(255,255,255,0.2); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
       `}</style>
         </div>
     )
