@@ -1,0 +1,21 @@
+# Lista de Tarefas - YOUVISA Sprint 2
+
+- [x] **Análise & Configuração**
+    - [x] Analisar Base de Código da Sprint 1 <!-- id: 0 -->
+    - [x] Criar Plano de Implementação para Sprint 2 <!-- id: 1 -->
+- [x] **Desenvolvimento Backend (Python - src/backend)**
+    - [x] Configurar Ambiente Python & Dependências <!-- id: 2 -->
+    - [x] Implementar Pipeline de Automação de Documentos <!-- id: 3 -->
+    - [x] Implementar Lógica de Chatbot com NLP/GenAI <!-- id: 4 -->
+    - [x] Implementar Validação de Visão Computacional (OpenCV) <!-- id: 5 -->
+    - [x] Implementar Automação de Email (SMTP) <!-- id: 6 -->
+- [x] **Desenvolvimento Frontend (React + Vite - src/frontend)**
+    - [x] Configurar Projeto React <!-- id: 7 -->
+    - [x] Desenvolver Interface de Chat <!-- id: 8 -->
+    - [x] Desenvolver Dashboard/Status View <!-- id: 9 -->
+- [x] **Integração & Verificação**
+    - [x] Integrar Backend e Frontend <!-- id: 10 -->
+    - [x] Testes do Sistema <!-- id: 11 -->
+- [x] **Documentação**
+    - [x] Criar Diagramas de Arquitetura <!-- id: 12 -->
+    - [x] Atualizar README.md <!-- id: 13 -->
