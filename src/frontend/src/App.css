@@ -770,3 +770,373 @@ button.send-btn:active {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ===== Notification Center ===== */
+.notification-center {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.nc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-xl);
+}
+
+.nc-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nc-subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.nc-refresh {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  transition: all 0.2s;
+}
+
+.nc-refresh:hover {
+  border-color: var(--border-active);
+  color: var(--text-primary);
+}
+
+/* Stats Row */
+.nc-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.nc-stat-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  transition: all 0.25s;
+}
+
+.nc-stat-card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateY(-2px);
+}
+
+.nc-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nc-stat-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.nc-stat-icon.email {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent-light);
+}
+
+.nc-stat-icon.sms {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+}
+
+.nc-stat-icon.total {
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--info);
+}
+
+.nc-stat-value {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.nc-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+}
+
+/* Filter Tabs */
+.nc-filters {
+  display: flex;
+  gap: var(--space-xs);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  margin-bottom: var(--space-lg);
+}
+
+.nc-filters button {
+  all: unset;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nc-filters button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.nc-filters button:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nc-filters button.active {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent-light);
+  font-weight: 500;
+}
+
+/* Notification Cards */
+.nc-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.nc-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.3s;
+  animation: ncCardIn 0.35s ease-out both;
+}
+
+@keyframes ncCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nc-card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.nc-card.email {
+  border-left: 3px solid var(--accent);
+}
+
+.nc-card.sms {
+  border-left: 3px solid var(--success);
+}
+
+.nc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.15rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.nc-card-channel {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.nc-channel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+}
+
+.nc-channel-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.nc-channel-badge.email {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent-light);
+}
+
+.nc-channel-badge.sms {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+}
+
+.nc-delivery-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--success);
+}
+
+.nc-card-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+/* Email Body */
+.nc-email-body {
+  padding: 1rem 1.15rem;
+}
+
+.nc-email-subject {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+  color: var(--text-primary);
+}
+
+.nc-email-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.nc-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.nc-email-content {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.nc-email-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.nc-provider {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.nc-event-tag {
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-accent);
+  font-family: monospace;
+}
+
+/* SMS Body */
+.nc-sms-body {
+  padding: 1rem 1.15rem;
+}
+
+.nc-sms-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.nc-sms-sender {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--success);
+}
+
+.nc-sms-recipient {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.nc-sms-bubble {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: var(--radius-lg);
+  border-bottom-left-radius: 4px;
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  position: relative;
+}
+
+.nc-sms-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: -1px;
+  width: 12px;
+  height: 12px;
+  background: rgba(16, 185, 129, 0.08);
+  border-bottom-right-radius: 12px;
+  border-left: 1px solid rgba(16, 185, 129, 0.15);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+}

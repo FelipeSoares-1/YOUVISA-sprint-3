@@ -153,7 +153,7 @@ class WorkflowService:
         notification_msg = status_messages.get(to_status, message)
         notification_service.notify(
             recipient="user@youvisa.com",
-            event_type=f"{from_status}_TO_{to_status}",
+            event_type=f"{from_status.value if from_status else 'None'}_TO_{to_status.value}",
             message=notification_msg,
             doc_id=doc_id
         )
