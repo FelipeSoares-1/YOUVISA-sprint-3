@@ -47,6 +47,10 @@ async def upload_document(file: UploadFile = File(...)):
             "ai_classification": ai_result
         }
     except Exception as e:
+        import traceback
+        print("======== UPLOAD ERROR ========")
+        traceback.print_exc()
+        print("==============================")
         raise HTTPException(status_code=500, detail=str(e))
 
 

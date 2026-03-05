@@ -154,5 +154,55 @@ class AIService:
         except Exception:
             return SAFE_FALLBACK.get(status, "Não foi possível gerar a explicação no momento.")
 
+    def chat_conversational(self, user_message: str, chat_history: list, process: dict = None) -> str:
+        if self.mock_mode:
+            return "Olá! Estou no modo de simulação (sem chave do Gemini). Sou a Consultora Valéria da YOUVISA e estou aqui para te ajudar."
+
+        process_info = "Nenhum processo ativo no momento."
+        if process:
+            process_info = f"ID: {process['id']}, Arquivo: {process['filename']}, Status Atual: {process['status']}."
+
+        # Format history
+        history_text = ""
+        for msg in chat_history[-10:]: # Pega as últimas 10
+            role_name = "Usuário" if msg.get("role") == "user" else "Valéria"
+            history_text += f"{role_name}: {msg.get('message')}\n"
+
+        system_instruction = """
+        Você é Valéria, a consultora virtual engajada e empática da plataforma YOUVISA.
+        Seu papel é ajudar o usuário com dúvidas sobre seu processo de visto e documentação.
+        
+        REGRAS OBRIGATÓRIAS:
+        1. Seja calorosa, humana e profissional. Use emojis moderadamente.
+        2. Baseie suas respostas ESTRITAMENTE no 'Contexto do Processo Atual' fornecido.
+        3. Se o status for PENDENTE_DOCS, oriente o usuário a reenviar o documento no painel.
+        4. NUNCA invente prazos (ex: "ficará pronto em 3 dias"). Diga que depende do consulado.
+        5. NUNCA prometa aprovação antecipada.
+        6. Se o usuário perguntar algo fora do escopo de vistos e imigração, recuse educadamente.
+        """
+
+        prompt = (
+            f"Contexto do Processo Atual: {process_info}\n\n"
+            f"Histórico Recente:\n{history_text}\n"
+            f"Usuário: {user_message}\n"
+            f"Valéria:"
+        )
+
+        try:
+            from google.genai import types
+            response = self.client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.7,
+                )
+            )
+            raw_response = response.text
+            # Apply safety guardrails over the persona output too
+            return apply_guardrails(raw_response, process["status"] if process else "NONE")
+        except Exception as e:
+            return f"Desculpe, estou com dificuldades de conexão no momento. (Erro: {str(e)})"
+
 
 ai_service = AIService()
