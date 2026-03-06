@@ -62,7 +62,7 @@ class NotificationService:
             logger.info(f"[NOTIFICATION:{channel.upper()}] {log_entry}")
 
             icon = "📧" if channel == "email" else "📱"
-            print(f"{icon} [{channel.upper()}] Para: {notification['recipient']} | {notification.get('subject', notification['message'][:50])}")
+            print(f"{icon} [{channel.upper()}] Para: {notification.get('recipient', 'Unknown')} | {notification.get('subject', notification.get('body', '')[:50])}")
 
             results.append(notification)
 
@@ -85,7 +85,8 @@ class NotificationService:
         }
 
     def _build_sms(self, recipient: str, event_type: str, message: str, doc_id: str) -> Dict:
-        sms_text = SMS_TEMPLATES.get(event_type, f"YOUVISA: {message[:120]}")
+        safe_message = message if message else "Atualização de status do processo."
+        sms_text = SMS_TEMPLATES.get(event_type, f"YOUVISA: {safe_message[:120]}")
         phone = "+55 11 9****-7890"  # Masked phone mock
         return {
             "id": str(uuid.uuid4())[:8],

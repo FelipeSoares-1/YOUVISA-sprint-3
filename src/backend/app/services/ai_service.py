@@ -1,4 +1,6 @@
-from openai import OpenAI
+from google import genai
+from google.genai import types
+from pydantic import BaseModel, Field
 import os
 import json
 import re
@@ -37,11 +39,25 @@ def apply_guardrails(text: str, status: str) -> str:
             return SAFE_FALLBACK.get(status, "Não posso fornecer essa informação no momento.")
     return text
 
+class ExtractedFields(BaseModel):
+    tipo_documento: str = Field(description="O tipo do documento")
+    nome: str = Field(description="Nome completo do titular")
+    numero_documento: str = Field(description="Número de identificação do documento")
+    data_validade: str = Field(description="Data de validade do documento")
+    pais_emissao: str = Field(description="País emissor do documento")
+
+class DocumentAnalysis(BaseModel):
+    classification: str = Field(description="A classificação do documento")
+    confidence: float = Field(description="O nível de confiança da extração (0 a 1)")
+    extracted_fields: ExtractedFields
+    summary: str = Field(description="Um breve sumário sobre o documento")
+    action_required: str = Field(description="Opcional. Ação requerida caso o documento exija atenção especial")
 
 class AIService:
     def __init__(self):
-        self.api_key = os.getenv("OPENAI_API_KEY")
-        self.client = OpenAI(api_key=self.api_key) if self.api_key else None
+        # O SDK google-genai procura automaticamente pela variável GEMINI_API_KEY
+        self.api_key = os.getenv("GEMINI_API_KEY")
+        self.client = genai.Client() if self.api_key else None
         self.mock_mode = not bool(self.api_key)
 
     def analyze_document(self, text: str):
@@ -61,18 +77,21 @@ class AIService:
             }
 
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": (
+            response = self.client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=f"Analyze this document text: {text[:1000]}",
+                config=types.GenerateContentConfig(
+                    system_instruction=(
                         "You are a document analysis assistant. "
                         "Extract: document type, holder name, document number, "
                         "expiry date, issuing country. Return JSON."
-                    )},
-                    {"role": "user", "content": f"Analyze this document text: {text[:1000]}"}
-                ]
+                    ),
+                    response_mime_type="application/json",
+                    response_schema=DocumentAnalysis,
+                    temperature=0.1,
+                ),
             )
-            return json.loads(response.choices[0].message.content)
+            return json.loads(response.text)
         except Exception as e:
             return {"error": str(e), "classification": "Unknown", "confidence": 0.0}
 
@@ -117,22 +136,73 @@ class AIService:
         """
 
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": guardrails_prompt},
-                    {"role": "user", "content": (
-                        f"O status do processo é '{status}'. "
-                        f"O histórico é: {json.dumps(context, default=str)}. "
-                        "Explique para o cliente em português o que isso significa e qual o próximo passo."
-                    )}
-                ]
+            response = self.client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=(
+                    f"O status do processo é '{status}'. "
+                    f"O histórico é: {json.dumps(context, default=str)}. "
+                    "Explique para o cliente em português o que isso significa e qual o próximo passo."
+                ),
+                config=types.GenerateContentConfig(
+                    system_instruction=guardrails_prompt,
+                    temperature=0.7,
+                )
             )
-            raw_response = response.choices[0].message.content
+            raw_response = response.text
             # Apply deterministic guardrails filter
             return apply_guardrails(raw_response, status)
         except Exception:
             return SAFE_FALLBACK.get(status, "Não foi possível gerar a explicação no momento.")
+
+    def chat_conversational(self, user_message: str, chat_history: list, process: dict = None) -> str:
+        if self.mock_mode:
+            return "Olá! Estou no modo de simulação (sem chave do Gemini). Sou a Consultora Valéria da YOUVISA e estou aqui para te ajudar."
+
+        process_info = "Nenhum processo ativo no momento."
+        if process:
+            process_info = f"ID: {process['id']}, Arquivo: {process['filename']}, Status Atual: {process['status']}."
+
+        # Format history
+        history_text = ""
+        for msg in chat_history[-10:]: # Pega as últimas 10
+            role_name = "Usuário" if msg.get("role") == "user" else "Valéria"
+            history_text += f"{role_name}: {msg.get('message')}\n"
+
+        system_instruction = """
+        Você é Valéria, a consultora virtual engajada e empática da plataforma YOUVISA.
+        Seu papel é ajudar o usuário com dúvidas sobre seu processo de visto e documentação.
+        
+        REGRAS OBRIGATÓRIAS:
+        1. Seja calorosa, humana e profissional. Use emojis moderadamente.
+        2. Baseie suas respostas ESTRITAMENTE no 'Contexto do Processo Atual' fornecido.
+        3. Se o status for PENDENTE_DOCS, oriente o usuário a reenviar o documento no painel.
+        4. NUNCA invente prazos (ex: "ficará pronto em 3 dias"). Diga que depende do consulado.
+        5. NUNCA prometa aprovação antecipada.
+        6. Se o usuário perguntar algo fora do escopo de vistos e imigração, recuse educadamente.
+        """
+
+        prompt = (
+            f"Contexto do Processo Atual: {process_info}\n\n"
+            f"Histórico Recente:\n{history_text}\n"
+            f"Usuário: {user_message}\n"
+            f"Valéria:"
+        )
+
+        try:
+            from google.genai import types
+            response = self.client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.7,
+                )
+            )
+            raw_response = response.text
+            # Apply safety guardrails over the persona output too
+            return apply_guardrails(raw_response, process["status"] if process else "NONE")
+        except Exception as e:
+            return f"Desculpe, estou com dificuldades de conexão no momento. (Erro: {str(e)})"
 
 
 ai_service = AIService()

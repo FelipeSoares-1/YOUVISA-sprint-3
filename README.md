@@ -55,10 +55,10 @@ O sistema dispara eventos (simulados via log/console) sempre que um status muda,
 ### Backend
 ```bash
 cd src/backend
-# Instalar dependências
-pip install -r requirements.txt
+# Instalar dependências a partir do pyproject.toml
+pip install .
 # Rodar servidor
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Frontend

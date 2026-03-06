@@ -30,6 +30,7 @@ export default function Dashboard() {
     const [notifications, setNotifications] = useState([])
     const [loading, setLoading] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
+    const [isAdminMode, setIsAdminMode] = useState(false)
 
     const fetchDocuments = async () => {
         try {
@@ -73,11 +74,33 @@ export default function Dashboard() {
         }
     }
 
+    const formatFilename = (filename) => {
+        if (!filename) return ""
+        const parts = filename.split('_')
+        if (parts.length > 1 && parts[0].length === 36) { // UUID length check
+            return parts.slice(1).join('_')
+        }
+        return filename
+    }
+
     return (
         <div className="dashboard">
             {/* Header */}
-            <div className="page-header">
-                <h1>Painel de Acompanhamento</h1>
+            <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                    <h1>Painel de Acompanhamento</h1>
+                    <div
+                        className={`admin-switch ${isAdminMode ? 'active' : ''}`}
+                        onClick={() => setIsAdminMode(!isAdminMode)}
+                    >
+                        <div className="switch-track">
+                            <div className="switch-thumb"></div>
+                        </div>
+                        <span style={{ fontWeight: isAdminMode ? '500' : '400', color: isAdminMode ? 'var(--accent-light)' : 'inherit' }}>
+                            Modo Admin
+                        </span>
+                    </div>
+                </div>
                 <button
                     className="notification-toggle"
                     onClick={() => setShowNotifications(!showNotifications)}
@@ -116,84 +139,93 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* Upload */}
-            <div className="card">
-                <h3>Novo Processo</h3>
-                <FileUpload onUploadSuccess={handleUploadSuccess} />
-            </div>
-
-            {/* Processes */}
-            <div className="card">
-                <h3>Seus Processos</h3>
-                {documents.length === 0 ? (
-                    <div className="empty-state">
-                        <InboxIcon />
-                        <p>Nenhum processo iniciado</p>
-                    </div>
-                ) : (
-                    <div>
-                        {documents.map(doc => (
-                            <div key={doc.id} className="process-card">
-                                <div className="process-header">
-                                    <div className="filename"><FileIcon /> {doc.filename}</div>
-                                    <span className="update-time">
-                                        {new Date(doc.updated_at).toLocaleTimeString()}
-                                    </span>
-                                </div>
-                                <div className="doc-id">ID: {doc.id}</div>
-
-                                <StatusTimeline status={doc.status} history={doc.history} />
-
-                                {/* Admin Controls */}
-                                <div className="admin-controls">
-                                    <span className="label">Admin</span>
-
-                                    {doc.status === 'RECEBIDO' && (
-                                        <button className="btn-default" disabled={loading}
-                                            onClick={() => handleTransition(doc.id, 'START_ANALYSIS')}>
-                                            Iniciar Análise
-                                        </button>
-                                    )}
-
-                                    {doc.status === 'EM_ANALISE' && (
-                                        <>
-                                            <button className="btn-success" disabled={loading}
-                                                onClick={() => handleTransition(doc.id, 'APPROVE')}>
-                                                Aprovar
-                                            </button>
-                                            <button className="btn-warning" disabled={loading}
-                                                onClick={() => handleTransition(doc.id, 'REQUEST_DOCS')}>
-                                                Solicitar Docs
-                                            </button>
-                                            <button className="btn-danger" disabled={loading}
-                                                onClick={() => handleTransition(doc.id, 'REJECT')}>
-                                                Reprovar
-                                            </button>
-                                        </>
-                                    )}
-
-                                    {doc.status === 'PENDENTE_DOCS' && (
-                                        <button className="btn-default" disabled={loading}
-                                            onClick={() => handleTransition(doc.id, 'RETRY_UPLOAD')}>
-                                            Reenviar
-                                        </button>
-                                    )}
-
-                                    {doc.status === 'APROVADO' && (
-                                        <button className="btn-accent" disabled={loading}
-                                            onClick={() => handleTransition(doc.id, 'FINALIZE')}>
-                                            Finalizar
-                                        </button>
-                                    )}
-
-                                    {(doc.status === 'REPROVADO' || doc.status === 'FINALIZADO') && (
-                                        <span className="btn-ghost">Processo encerrado</span>
-                                    )}
-                                </div>
+            <div className="dashboard-grid">
+                <div className="grid-main">
+                    {/* Processes */}
+                    <div className="card">
+                        <h3>Seus Processos</h3>
+                        {documents.length === 0 ? (
+                            <div className="empty-state">
+                                <InboxIcon />
+                                <p>Nenhum processo iniciado</p>
                             </div>
-                        ))}
+                        ) : (
+                            <div>
+                                {documents.map(doc => (
+                                    <div key={doc.id} className="process-card">
+                                        <div className="process-header">
+                                            <div className="filename"><FileIcon /> {formatFilename(doc.filename)}</div>
+                                            <span className="update-time">
+                                                {new Date(doc.updated_at).toLocaleTimeString()}
+                                            </span>
+                                        </div>
+                                        <div className="doc-id">ID: {doc.id}</div>
+
+                                        <StatusTimeline status={doc.status} history={doc.history} />
+
+                                        {/* Admin Controls */}
+                                        {isAdminMode && (
+                                            <div className="admin-controls" style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed var(--border-color)' }}>
+                                                <span className="label" style={{ fontWeight: 600, color: 'var(--accent-light)', marginBottom: '0.5rem', display: 'block' }}>Ações de Administrador</span>
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    {doc.status === 'RECEBIDO' && (
+                                                        <button className="btn-default" disabled={loading}
+                                                            onClick={() => handleTransition(doc.id, 'START_ANALYSIS')}>
+                                                            Iniciar Análise
+                                                        </button>
+                                                    )}
+
+                                                    {doc.status === 'EM_ANALISE' && (
+                                                        <>
+                                                            <button className="btn-success" disabled={loading}
+                                                                onClick={() => handleTransition(doc.id, 'APPROVE')}>
+                                                                Aprovar
+                                                            </button>
+                                                            <button className="btn-warning" disabled={loading}
+                                                                onClick={() => handleTransition(doc.id, 'REQUEST_DOCS')}>
+                                                                Solicitar Docs
+                                                            </button>
+                                                            <button className="btn-danger" disabled={loading}
+                                                                onClick={() => handleTransition(doc.id, 'REJECT')}>
+                                                                Reprovar
+                                                            </button>
+                                                        </>
+                                                    )}
+
+                                                    {doc.status === 'PENDENTE_DOCS' && (
+                                                        <button className="btn-default" disabled={loading}
+                                                            onClick={() => handleTransition(doc.id, 'RETRY_UPLOAD')}>
+                                                            Marcar como Reenviado (Mock)
+                                                        </button>
+                                                    )}
+
+                                                    {doc.status === 'APROVADO' && (
+                                                        <button className="btn-accent" disabled={loading}
+                                                            onClick={() => handleTransition(doc.id, 'FINALIZE')}>
+                                                            Finalizar
+                                                        </button>
+                                                    )}
+
+                                                    {(doc.status === 'REPROVADO' || doc.status === 'FINALIZADO') && (
+                                                        <span className="btn-ghost" style={{ padding: '0.5rem 1rem', display: 'inline-block' }}>Processo encerrado</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
+
+                <div className="grid-sidebar">
+                    {/* Upload */}
+                    <div className="card upload-card">
+                        <h3>Novo Processo</h3>
+                        <FileUpload onUploadSuccess={handleUploadSuccess} />
+                    </div>
+                </div>
             </div>
         </div>
     )
