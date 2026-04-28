@@ -38,6 +38,13 @@ _INTENT_PATTERNS: list[tuple[str, list[str], float]] = [
         r"agora o que", r"depois", r"seguinte", r"continuar",
         r"próxima etapa", r"próximo", r"devo fazer",
         r"como faço", r"o que devo", r"como proceder",
+        r"como tiro", r"como tira", r"como tirar",
+        r"como consigo", r"como solicito", r"como solicitar",
+        r"passo a passo", r"etapas",
+        r"como\s+\w{0,6}\s*fa[çc]o",   # "como eu faço", "como posso fazer"
+        r"como\s+\w{0,6}\s*obtenho",    # "como eu obtenho"
+        r"tirar o visto", r"tirar o passaporte",
+        r"para tirar", r"para solicitar", r"para obter",
     ], 0.88),
 
     ("DEADLINE", [
@@ -69,7 +76,7 @@ _INTENT_PATTERNS: list[tuple[str, list[str], float]] = [
         r"^ol[aá]", r"^oi\b", r"^bom dia", r"^boa tarde",
         r"^boa noite", r"tudo bem", r"tudo certo", r"^e a[ií]",
         r"^ei\b", r"^hey\b",
-    ], 0.95),
+    ], 0.75),  # reduzido para não vencer intents substantivos em mensagens mistas
 
     ("HELP", [
         r"ajuda", r"help", r"como funciona", r"n[aã]o entendo",
