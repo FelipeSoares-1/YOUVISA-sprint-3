@@ -1,10 +1,16 @@
-from google import genai
-from google.genai import types
+from __future__ import annotations
 from pydantic import BaseModel, Field
 import os
 import json
 import re
 from dotenv import load_dotenv
+
+try:
+    from google import genai
+    from google.genai import types as genai_types
+    _GENAI_AVAILABLE = True
+except ImportError:
+    _GENAI_AVAILABLE = False
 
 load_dotenv()
 
@@ -55,10 +61,9 @@ class DocumentAnalysis(BaseModel):
 
 class AIService:
     def __init__(self):
-        # O SDK google-genai procura automaticamente pela variável GEMINI_API_KEY
         self.api_key = os.getenv("GEMINI_API_KEY")
-        self.client = genai.Client() if self.api_key else None
-        self.mock_mode = not bool(self.api_key)
+        self.client = genai.Client() if (self.api_key and _GENAI_AVAILABLE) else None
+        self.mock_mode = not bool(self.client)
 
     def analyze_document(self, text: str):
         if self.mock_mode:
@@ -80,7 +85,7 @@ class AIService:
             response = self.client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=f"Analyze this document text: {text[:1000]}",
-                config=types.GenerateContentConfig(
+                config=genai_types.GenerateContentConfig(
                     system_instruction=(
                         "You are a document analysis assistant. "
                         "Extract: document type, holder name, document number, "
@@ -143,7 +148,7 @@ class AIService:
                     f"O histórico é: {json.dumps(context, default=str)}. "
                     "Explique para o cliente em português o que isso significa e qual o próximo passo."
                 ),
-                config=types.GenerateContentConfig(
+                config=genai_types.GenerateContentConfig(
                     system_instruction=guardrails_prompt,
                     temperature=0.7,
                 )
@@ -189,11 +194,10 @@ class AIService:
         )
 
         try:
-            from google.genai import types
             response = self.client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=prompt,
-                config=types.GenerateContentConfig(
+                config=genai_types.GenerateContentConfig(
                     system_instruction=system_instruction,
                     temperature=0.7,
                 )

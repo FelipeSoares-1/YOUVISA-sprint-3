@@ -30,3 +30,21 @@ docs/diagrams/*.svg
 # CI/CD
 .github/
 
+# SQLite database (gerado em runtime)
+*.db
+*.db-shm
+*.db-wal
+
+# Memory do assistente (não vai pro repo)
+MEMORY.md
+
+
+# Evidências de teste (local only)
+evidence/
+
+# Uploads de usuário (gerados em runtime)
+src/backend/uploads/
+
+# Arquivos de teste local
+src/backend/passaporte_real.txt
+src/backend/test_doc_sprint4.txt
