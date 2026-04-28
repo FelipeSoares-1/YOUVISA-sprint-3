@@ -38,6 +38,19 @@ const BotAvatar = () => (
   </svg>
 )
 
+// Session ID persistido no localStorage — mesmo usuário mantém histórico entre recargas
+function getSessionId() {
+  const key = 'youvisa_session_id'
+  let id = localStorage.getItem(key)
+  if (!id) {
+    id = crypto.randomUUID()
+    localStorage.setItem(key, id)
+  }
+  return id
+}
+
+const SESSION_ID = getSessionId()
+
 export default function ChatInterface() {
   const [messages, setMessages] = useState([
     { role: 'bot', text: 'Olá! Sou a Valéria, consultora da YOUVISA. Como posso ajudar com seu processo consular hoje?' }
@@ -60,7 +73,7 @@ export default function ChatInterface() {
     try {
       const { data } = await axios.post('http://localhost:8000/api/chat/', {
         message: text,
-        user_id: 'guest',
+        user_id: SESSION_ID,
       })
       setMessages(prev => [...prev, {
         role: 'bot',
