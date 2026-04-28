@@ -183,13 +183,13 @@ Acesse: `http://localhost:5173`
 
 ## Governança de IA
 
-Três camadas de proteção:
+Cinco camadas de proteção:
 
-1. **System Instruction** — Valéria tem escopo restrito: proibida de inventar prazos, garantias ou conselhos jurídicos
-2. **Memory Windowing** — apenas as últimas 8 mensagens são enviadas ao LLM
-3. **Guardrails determinísticos** — `BLOCKED_PHRASES` detecta frases proibidas e substitui por `SAFE_FALLBACK` pré-aprovado
-
-Frases bloqueadas: `"amanhã"`, `"garanto"`, `"100% aprovado"`, `"prometo"`, `"prazo de"`, `"tenho certeza"`, etc.
+1. **Rate Limiting** — máximo 10 mensagens/minuto por sessão (in-memory, janela deslizante)
+2. **Input Filtering** — regex com 13 padrões PT/EN bloqueia tentativas de prompt injection antes de chegar ao LLM; limite de 2.000 caracteres por mensagem
+3. **System Instruction** — Valéria tem escopo restrito: proibida de inventar prazos, garantias ou conselhos jurídicos; formatação plain text obrigatória
+4. **Memory Windowing** — apenas as últimas 8 mensagens são enviadas ao LLM, eliminando context poisoning por histórico longo
+5. **Guardrails determinísticos** — `BLOCKED_PHRASES` detecta frases proibidas pós-geração e substitui por `SAFE_FALLBACK` pré-aprovado; `_strip_markdown` sanitiza símbolos de formatação
 
 ---
 

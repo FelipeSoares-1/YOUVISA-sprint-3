@@ -32,6 +32,13 @@ REGRAS ABSOLUTAS:
 • Se não souber, diga que vai verificar com a equipe
 • Seja empática, precisa e objetiva
 
+FORMATAÇÃO — OBRIGATÓRIO:
+• Responda SOMENTE em texto simples, sem markdown
+• Não use asteriscos, underlines, hashtags ou qualquer símbolo de formatação
+• Para listas use hífen simples: "- item"
+• Máximo 4 frases ou 4 itens de lista por resposta
+• Não comece a resposta com "Valéria:"
+
 ESCOPO: Dúvidas sobre documentação, status de processo, próximos passos e orientações gerais de visto/passaporte.
 """
 
@@ -175,7 +182,23 @@ class ResponseGeneratorAgent:
             lines.append(f"{role}: {msg.get('content', '')}")
         return "Histórico recente:\n" + "\n".join(lines)
 
+    def _strip_markdown(self, text: str) -> str:
+        """Remove markdown symbols Gemini may produce despite instructions."""
+        # Bold and italic: **text**, *text*, __text__, _text_
+        text = re.sub(r'\*{1,3}([^*]+)\*{1,3}', r'\1', text)
+        text = re.sub(r'_{1,2}([^_]+)_{1,2}', r'\1', text)
+        # Headers: ## Title → Title
+        text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+        # Bullet markers: "*   item" or "* item" → "- item"
+        text = re.sub(r'^\*{1,2}\s+', '- ', text, flags=re.MULTILINE)
+        # Inline code: `text` → text
+        text = re.sub(r'`([^`]+)`', r'\1', text)
+        # Trailing spaces and multiple blank lines
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        return text.strip()
+
     def _apply_guardrails(self, text: str) -> str:
+        text = self._strip_markdown(text)
         lower = text.lower()
         for phrase in BLOCKED_PHRASES:
             if phrase in lower:

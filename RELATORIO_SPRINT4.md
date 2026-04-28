@@ -44,6 +44,8 @@ O `IntentClassifierAgent` mantém um mapa de 9 intents, cada um com lista de pad
 
 A abordagem rule-based garante comportamento **previsível, auditável e sem custo de API** para a etapa de classificação.
 
+**Decisão de design — rule-based vs. probabilístico:** Consideramos o uso de modelos probabilísticos (Naive Bayes, BERT fine-tuned, Rasa NLU) para a classificação de intent. A opção rule-based foi adotada conscientemente pelos seguintes motivos: (1) volume de dados rotulados insuficiente no contexto da sprint para treinar um classificador supervisionado confiável; (2) o domínio consular é restrito e bem delimitado — 9 intents cobrem >95% dos casos de uso; (3) latência zero e total rastreabilidade (cada keyword correspondida é registrada no `agent_trace`). A evolução natural para um modelo probabilístico ocorreria no MRP, após acúmulo de logs reais de interação para treinamento.
+
 ### Fase 2 — Extração de Entidades
 
 Após saber *o que* o usuário quer, o `EntityExtractorAgent` identifica *sobre o quê*. Um UUID na mensagem é capturado por regex e usado como `doc_id` para busca direta. Termos como "passaporte" ou "visto" populam `document_type`. Datas no formato `DD/MM/AAAA` são capturadas para contexto temporal.

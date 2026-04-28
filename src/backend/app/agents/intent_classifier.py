@@ -59,6 +59,10 @@ _INTENT_PATTERNS: list[tuple[str, list[str], float]] = [
         r"certid[aã]o", r"comprovante de resid[eê]ncia",
         r"extrato", r"foto", r"documento de identidade",
         r"validade", r"valid[ao]", r"documento",
+        r"\betias\b", r"\beta\b", r"autoriza[çc][aã]o eletr[oô]nica",
+        r"reino unido", r"schengen", r"ds-?160", r"casv",
+        r"b1", r"b2", r"b1/b2", r"taxa consular", r"mrv",
+        r"visto americano", r"visto europeu", r"visto de turismo",
     ], 0.85),
 
     ("GREETING", [

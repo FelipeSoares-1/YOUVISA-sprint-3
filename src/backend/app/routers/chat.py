@@ -46,6 +46,10 @@ INJECTION_RESPONSE = (
     "Como posso te ajudar?"
 )
 
+RATE_LIMIT_RESPONSE = (
+    "Muitas mensagens em pouco tempo. Aguarde alguns instantes e tente novamente."
+)
+
 
 def _sanitize_input(text: str) -> str | None:
     """Returns sanitized text or None if injection detected."""
@@ -55,6 +59,29 @@ def _sanitize_input(text: str) -> str | None:
         logger.warning("Prompt injection attempt blocked: %.80s", text)
         return None
     return text
+
+
+# ---------------------------------------------------------------------------
+# Rate limiting — max 10 messages per minute per user_id (in-memory)
+# ---------------------------------------------------------------------------
+import time
+from collections import defaultdict, deque
+
+_rate_store: dict[str, deque] = defaultdict(lambda: deque())
+_RATE_LIMIT = 10
+_RATE_WINDOW = 60  # seconds
+
+
+def _is_rate_limited(user_id: str) -> bool:
+    now = time.time()
+    dq = _rate_store[user_id]
+    while dq and now - dq[0] > _RATE_WINDOW:
+        dq.popleft()
+    if len(dq) >= _RATE_LIMIT:
+        logger.warning("Rate limit exceeded for user: %s", user_id)
+        return True
+    dq.append(now)
+    return False
 
 
 # In-memory session store for chat history (per user_id).
@@ -87,6 +114,15 @@ class ChatRequest(BaseModel):
 @router.post("/")
 async def chat_interaction(request: ChatRequest):
     try:
+        if _is_rate_limited(request.user_id):
+            return {
+                "response":           RATE_LIMIT_RESPONSE,
+                "detected_intent":    "GENERAL",
+                "intent_confidence":  1.0,
+                "entities":           {},
+                "has_active_process": False,
+            }
+
         clean_message = _sanitize_input(request.message)
         if clean_message is None:
             return {
