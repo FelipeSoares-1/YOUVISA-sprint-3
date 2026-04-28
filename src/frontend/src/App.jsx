@@ -90,6 +90,7 @@ function App() {
   const [currentView, setCurrentView] = useState('dashboard')
   const [chatOpen, setChatOpen]       = useState(false)
   const [theme, setTheme]             = useState('light')
+  const [isAdminMode, setIsAdminMode] = useState(false)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -132,9 +133,9 @@ function App() {
       </nav>
 
       <main className="main-content">
-        {currentView === 'dashboard'     && <Dashboard />}
+        {currentView === 'dashboard'     && <Dashboard isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />}
         {currentView === 'notifications' && <NotificationCenter />}
-        {currentView === 'history'       && <InteractionHistory />}
+        {currentView === 'history'       && <InteractionHistory isAdminMode={isAdminMode} />}
       </main>
 
       {/* FAB Valéria */}

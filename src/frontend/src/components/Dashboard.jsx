@@ -134,12 +134,11 @@ function HeroSection({ hasDocuments }) {
 }
 
 // ─── Componente principal ──────────────────────────────────────
-export default function Dashboard() {
+export default function Dashboard({ isAdminMode, setIsAdminMode }) {
     const [documents, setDocuments] = useState([])
     const [notifications, setNotifications] = useState([])
     const [loading, setLoading] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
-    const [isAdminMode, setIsAdminMode] = useState(false)
 
     const fetchDocuments = async () => {
         try {

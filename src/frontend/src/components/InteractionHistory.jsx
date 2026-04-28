@@ -87,7 +87,7 @@ function AgentTrace({ trace }) {
   )
 }
 
-function InteractionCard({ log }) {
+function InteractionCard({ log, isAdminMode }) {
   const ts = new Date(log.timestamp)
   const timeStr = ts.toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
   const entities = log.entities || {}
@@ -167,8 +167,8 @@ function InteractionCard({ log }) {
           </div>
         </div>
 
-        {/* Agent trace (collapsible) */}
-        <AgentTrace trace={log.agent_trace} />
+        {/* Agent trace — visível apenas em modo administrador */}
+        {isAdminMode && <AgentTrace trace={log.agent_trace} />}
       </div>
     </div>
   )
@@ -212,7 +212,7 @@ function StatsBar({ logs }) {
   )
 }
 
-export default function InteractionHistory() {
+export default function InteractionHistory({ isAdminMode = false }) {
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -271,6 +271,19 @@ export default function InteractionHistory() {
         </button>
       </div>
 
+      {/* Admin mode notice */}
+      {isAdminMode && (
+        <div style={{
+          marginBottom: '1rem', padding: '0.6rem 1rem',
+          background: 'rgba(217,119,6,0.08)', border: '1px solid rgba(217,119,6,0.25)',
+          borderRadius: '8px', fontSize: '0.8rem', color: 'var(--amber)',
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Modo administrador ativo — agent trace visível
+        </div>
+      )}
+
       {/* Stats */}
       <StatsBar logs={logs} />
 
@@ -327,7 +340,7 @@ export default function InteractionHistory() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
         {filtered.map(log => (
-          <InteractionCard key={log.id} log={log} />
+          <InteractionCard key={log.id} log={log} isAdminMode={isAdminMode} />
         ))}
       </div>
 
