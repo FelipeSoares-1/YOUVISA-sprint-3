@@ -1,8 +1,12 @@
-import cv2
-import numpy as np
 import os
 import random
 from datetime import datetime, timedelta
+
+try:
+    import cv2
+    _CV2_AVAILABLE = True
+except ImportError:
+    _CV2_AVAILABLE = False
 
 
 class CVService:
@@ -16,7 +20,7 @@ class CVService:
 
             # Attempt real image validation if file is an image
             img = None
-            if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
+            if _CV2_AVAILABLE and file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
                 img = cv2.imread(file_path)
 
             if img is not None:

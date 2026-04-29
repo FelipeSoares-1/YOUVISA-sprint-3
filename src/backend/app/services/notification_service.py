@@ -1,112 +1,104 @@
-from datetime import datetime
-from typing import List, Dict
+from __future__ import annotations
+import uuid
 import logging
 import json
-import uuid
+from datetime import datetime, timezone
+
+from app.database import notification_repo
 
 logger = logging.getLogger("youvisa.notifications")
 
-# Channel rotation rules per event type
-CHANNEL_RULES = {
-    "None_TO_RECEBIDO": ["email"],
-    "RECEBIDO_TO_EM_ANALISE": ["email", "sms"],
-    "EM_ANALISE_TO_PENDENTE_DOCS": ["email", "sms"],
-    "EM_ANALISE_TO_APROVADO": ["email", "sms"],
-    "EM_ANALISE_TO_REPROVADO": ["email", "sms"],
-    "APROVADO_TO_FINALIZADO": ["email", "sms"],
-    "PENDENTE_DOCS_TO_RECEBIDO": ["email"],
+CHANNEL_RULES: dict[str, list[str]] = {
+    "None_TO_RECEBIDO":             ["email"],
+    "RECEBIDO_TO_EM_ANALISE":       ["email", "sms"],
+    "EM_ANALISE_TO_PENDENTE_DOCS":  ["email", "sms"],
+    "EM_ANALISE_TO_APROVADO":       ["email", "sms"],
+    "EM_ANALISE_TO_REPROVADO":      ["email", "sms"],
+    "APROVADO_TO_FINALIZADO":       ["email", "sms"],
+    "PENDENTE_DOCS_TO_RECEBIDO":    ["email"],
 }
 
-# Email subjects per status
-EMAIL_SUBJECTS = {
-    "None_TO_RECEBIDO": "YOUVISA — Documento Recebido com Sucesso",
-    "RECEBIDO_TO_EM_ANALISE": "YOUVISA — Análise Técnica Iniciada",
-    "EM_ANALISE_TO_PENDENTE_DOCS": "YOUVISA — Ação Necessária: Pendência Documental",
-    "EM_ANALISE_TO_APROVADO": "YOUVISA — Parabéns! Documentação Aprovada",
-    "EM_ANALISE_TO_REPROVADO": "YOUVISA — Documentação Reprovada",
-    "APROVADO_TO_FINALIZADO": "YOUVISA — Processo Concluído com Sucesso",
-    "PENDENTE_DOCS_TO_RECEBIDO": "YOUVISA — Documento Reenviado",
+EMAIL_SUBJECTS: dict[str, str] = {
+    "None_TO_RECEBIDO":             "YOUVISA — Documento Recebido com Sucesso",
+    "RECEBIDO_TO_EM_ANALISE":       "YOUVISA — Análise Técnica Iniciada",
+    "EM_ANALISE_TO_PENDENTE_DOCS":  "YOUVISA — Ação Necessária: Pendência Documental",
+    "EM_ANALISE_TO_APROVADO":       "YOUVISA — Parabéns! Documentação Aprovada",
+    "EM_ANALISE_TO_REPROVADO":      "YOUVISA — Documentação Reprovada",
+    "APROVADO_TO_FINALIZADO":       "YOUVISA — Processo Concluído com Sucesso",
+    "PENDENTE_DOCS_TO_RECEBIDO":    "YOUVISA — Documento Reenviado",
 }
 
-# SMS templates (short)
-SMS_TEMPLATES = {
-    "RECEBIDO_TO_EM_ANALISE": "YOUVISA: Seu documento entrou em análise técnica. Acompanhe pelo painel: app.youvisa.com",
-    "EM_ANALISE_TO_PENDENTE_DOCS": "YOUVISA: Pendência detectada na documentação. Acesse o painel para reenviar.",
-    "EM_ANALISE_TO_APROVADO": "YOUVISA: Documentação APROVADA! Acesse o painel para os próximos passos.",
-    "EM_ANALISE_TO_REPROVADO": "YOUVISA: Documentação reprovada. Acesse o painel ou contate o suporte.",
-    "APROVADO_TO_FINALIZADO": "YOUVISA: Processo CONCLUÍDO com sucesso! Obrigado por usar a YOUVISA.",
+SMS_TEMPLATES: dict[str, str] = {
+    "RECEBIDO_TO_EM_ANALISE":       "YOUVISA: Seu documento entrou em análise técnica. Acompanhe: app.youvisa.com",
+    "EM_ANALISE_TO_PENDENTE_DOCS":  "YOUVISA: Pendência detectada. Acesse o painel para reenviar.",
+    "EM_ANALISE_TO_APROVADO":       "YOUVISA: Documentação APROVADA! Acesse o painel.",
+    "EM_ANALISE_TO_REPROVADO":      "YOUVISA: Documentação reprovada. Contate o suporte.",
+    "APROVADO_TO_FINALIZADO":       "YOUVISA: Processo CONCLUÍDO! Obrigado por usar a YOUVISA.",
 }
 
 
 class NotificationService:
-    def __init__(self):
-        self._notifications: List[Dict] = []
-
-    def notify(self, recipient: str, event_type: str, message: str, doc_id: str = None):
-        """
-        Registers and simulates sending notifications via email and SMS.
-        Dispatches to one or both channels based on event rules.
-        """
+    def notify(self, recipient: str, event_type: str, message: str, doc_id: str = None) -> list[dict]:
         channels = CHANNEL_RULES.get(event_type, ["email"])
         results = []
 
         for channel in channels:
-            if channel == "email":
-                notification = self._build_email(recipient, event_type, message, doc_id)
-            else:
-                notification = self._build_sms(recipient, event_type, message, doc_id)
-
-            self._notifications.append(notification)
-
-            log_entry = json.dumps(notification, ensure_ascii=False)
-            logger.info(f"[NOTIFICATION:{channel.upper()}] {log_entry}")
+            notif = (
+                self._build_email(recipient, event_type, message, doc_id)
+                if channel == "email"
+                else self._build_sms(recipient, event_type, message, doc_id)
+            )
+            try:
+                notification_repo.save(notif)
+            except Exception as exc:
+                logger.error("Failed to persist notification: %s", exc)
 
             icon = "📧" if channel == "email" else "📱"
-            print(f"{icon} [{channel.upper()}] Para: {notification.get('recipient', 'Unknown')} | {notification.get('subject', notification.get('body', '')[:50])}")
+            logger.info(
+                "[NOTIFICATION:%s] %s",
+                channel.upper(),
+                json.dumps(notif, ensure_ascii=False)
+            )
+            print(f"{icon} [{channel.upper()}] {notif.get('recipient')} | {notif.get('subject') or notif.get('body','')[:50]}")
+            results.append(notif)
 
-            results.append(notification)
+        return results
 
-        return results[0] if len(results) == 1 else results
-
-    def _build_email(self, recipient: str, event_type: str, message: str, doc_id: str) -> Dict:
-        subject = EMAIL_SUBJECTS.get(event_type, f"YOUVISA — Atualização do Processo")
+    def _build_email(self, recipient: str, event_type: str, message: str, doc_id: str | None) -> dict:
         return {
-            "id": str(uuid.uuid4())[:8],
+            "id": str(uuid.uuid4()),
             "channel": "email",
             "recipient": recipient,
             "sender": "noreply@youvisa.com.br",
-            "subject": subject,
+            "subject": EMAIL_SUBJECTS.get(event_type, "YOUVISA — Atualização do Processo"),
             "body": message,
             "event_type": event_type,
-            "doc_id": doc_id,
-            "sent_at": datetime.now().isoformat(),
+            "doc_id": doc_id or "",
+            "sent_at": datetime.now(timezone.utc).isoformat(),
             "delivered": True,
-            "provider": "SMTP (Simulado)"
+            "provider": "SMTP (Simulado)",
         }
 
-    def _build_sms(self, recipient: str, event_type: str, message: str, doc_id: str) -> Dict:
-        safe_message = message if message else "Atualização de status do processo."
-        sms_text = SMS_TEMPLATES.get(event_type, f"YOUVISA: {safe_message[:120]}")
-        phone = "+55 11 9****-7890"  # Masked phone mock
+    def _build_sms(self, recipient: str, event_type: str, message: str, doc_id: str | None) -> dict:
         return {
-            "id": str(uuid.uuid4())[:8],
+            "id": str(uuid.uuid4()),
             "channel": "sms",
-            "recipient": phone,
+            "recipient": "+55 11 9****-7890",
             "sender": "YOUVISA",
             "subject": None,
-            "body": sms_text,
+            "body": SMS_TEMPLATES.get(event_type, f"YOUVISA: {message[:120]}"),
             "event_type": event_type,
-            "doc_id": doc_id,
-            "sent_at": datetime.now().isoformat(),
+            "doc_id": doc_id or "",
+            "sent_at": datetime.now(timezone.utc).isoformat(),
             "delivered": True,
-            "provider": "Twilio (Simulado)"
+            "provider": "Twilio (Simulado)",
         }
 
-    def get_all(self) -> List[Dict]:
-        return self._notifications
+    def get_all(self) -> list[dict]:
+        return notification_repo.list_all()
 
-    def get_by_doc(self, doc_id: str) -> List[Dict]:
-        return [n for n in self._notifications if n.get("doc_id") == doc_id]
+    def get_by_doc(self, doc_id: str) -> list[dict]:
+        return notification_repo.list_by_doc(doc_id)
 
 
 notification_service = NotificationService()
