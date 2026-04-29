@@ -3,6 +3,8 @@
 **Grupo 41 · FIAP Enterprise Challenge**  
 Caio Rodrigues Castro · Felipe Soares Nascimento · Fernando Miranda Segregio · Mario Roberto Silva de Almeida · Wellington Nascimento de Brito
 
+**Demo em vídeo:** [https://youtu.be/e4jnhz5muF4](https://youtu.be/e4jnhz5muF4)
+
 ---
 
 ## 1. Organização dos Agentes Inteligentes
